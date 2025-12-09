@@ -10,15 +10,27 @@ html, body
   -ms-user-select: none
   user-select: none
 
-#timer
+#display
   width: 100%
   height: 100%
-  line-height: 100%
   background: #000
   color: #fff
   text-align: center
   font-weight: 700
   font-family: century gothic
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+
+#timer
+  width: 100%
+  line-height: 1
+
+#countup
+  color: #0f0
+  font-weight: 600
+  margin-top: 10px
 
 #hide, #toggle, #reset, #min10, #min60, #add10, #add60, #def10, #def30, #def60, #def180, #def300, #def600, #def900, #def1800
   position: absolute

@@ -11,6 +11,14 @@ delay = 60000
 audio-remind = null
 audio-end = null
 
+update-countup = ->
+  cu = $ \#countup
+  elapsed = 0
+  if start != null =>
+    elapsed := (new Date!)getTime! - start.getTime! - latency
+    if elapsed < 0 => elapsed = 0
+  cu.text "+#{elapsed}"
+
 new-audio = (file) ->
   node = new Audio!
     ..src = file
@@ -40,7 +48,7 @@ adjust = (it,v) ->
 toggle = ->
   is-run := !is-run
   $ \#toggle .text if is-run => "STOP" else "RUN"
-  if !is-run and handler => 
+  if !is-run and handler =>
     stop-by := new Date!
     clearInterval handler
     handler := null
@@ -49,6 +57,7 @@ toggle = ->
   if stop-by =>
     latency := latency + (new Date!)getTime! - stop-by.getTime!
   if is-run => run!
+  update-countup!
 
 reset = ->
   if delay == 0 => delay := 1000
@@ -65,6 +74,7 @@ reset = ->
   handler := null
   $ \#timer .text delay
   $ \#timer .css \color, \#fff
+  update-countup!
   resize!
 
 
@@ -72,6 +82,7 @@ blink = ->
   is-blink := true
   is-light := !is-light
   $ \#timer .css \color, if is-light => \#fff else \#f00
+  update-countup!
 
 count = ->
   tm = $ \#timer
@@ -88,6 +99,7 @@ count = ->
     clearInterval handler
     handler := setInterval ( -> blink!), 500
   tm.text "#{diff}"
+  update-countup!
   resize!
 
 run =  ->
@@ -100,17 +112,25 @@ run =  ->
   else handler := setInterval (-> count!), 100
 
 resize = ->
+  container = $ \#display
   tm = $ \#timer
-  w = tm.width!
+  cu = $ \#countup
+  w = container.width!
   h = $ window .height!
   len = tm.text!length
   len>?=3
-  tm.css \font-size, "#{1.5 * w/len}px"
-  tm.css \line-height, "#{h}px"
+  timer-font = 1.5 * w/len
+  max-font = h * 0.6
+  if timer-font > max-font => timer-font = max-font
+  tm.css \font-size, "#{timer-font}px"
+  cu.css \font-size, "#{Math.max(timer-font * 0.3, 24)}px"
+  cu.css \margin-top, "#{timer-font * 0.1}px"
+  container.css \height, "#{h}px"
 
 
 window.onload = ->
   $ \#timer .text delay
+  update-countup!
   resize!
   #audio-remind := new-audio \audio/cop-car.mp3
   #audio-end := new-audio \audio/fire-alarm.mp3
